@@ -1,13 +1,18 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-
 from pydantic import BaseModel
+from faker import Faker
 
 app = FastAPI()
-
+# data
+fake = Faker()
+items = [{'id': i+1, 'name': fake.name(), 'email': fake.email(), 'job': fake.job()} for i in range(10)]
 
 class Item(BaseModel):
-    item_id: int
+    id: int
+    name: str
+    email: str
+    job: str
 
 
 @app.get("/")
@@ -20,14 +25,15 @@ async def favicon():
     return FileResponse('favicon.ico')
 
 
-@app.get("/item/{item_id}")
-async def read_item(item_id: int):
-    return {"item_id": item_id}
+@app.get("/item/{id}")
+async def read_item(id: int):
+    item = items[id-1]
+    return item
 
 
 @app.get("/items/")
 async def list_items():
-    return [{"item_id": 1, "name": "Foo"}, {"item_id": 2, "name": "Bar"}]
+    return items
 
 
 @app.post("/items/")
